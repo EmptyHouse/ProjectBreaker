@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "ProjectBreaker",
+			"Path": "C:\\Users\\Thurston\\Documents\\GitHub\\ProjectBreaker\\ProjectBreaker\\Source\\ProjectBreaker.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "ProjectBreakerEditor",
+			"Path": "C:\\Users\\Thurston\\Documents\\GitHub\\ProjectBreaker\\ProjectBreaker\\Source\\ProjectBreakerEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}

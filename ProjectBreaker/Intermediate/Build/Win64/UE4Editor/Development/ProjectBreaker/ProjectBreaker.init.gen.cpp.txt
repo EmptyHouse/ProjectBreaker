@@ -1,0 +1,3 @@
+C:\Users\Thurston\Documents\GitHub\ProjectBreaker\ProjectBreaker\Intermediate\Build\Win64\UE4Editor\Development\ProjectBreaker\Definitions.ProjectBreaker.h
+C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
+C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h

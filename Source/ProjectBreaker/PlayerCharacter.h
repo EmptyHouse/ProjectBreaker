@@ -71,7 +71,7 @@ protected:
 private:
 
 	/** Current direction the camera is facing relative to the sprite's forward vector */
-	UPROPERTY(VisibleAnywhere, Category = "CameraMovement")
+	UPROPERTY(EditAnywhere, Category = "CameraMovement")
 	TEnumAsByte<ESpriteCameraFacingDirection> CurrentCameraFacingDirection;
 	
 	/** Returns the current camera view relative to the forward vector of the sprite */
@@ -87,6 +87,9 @@ private:
 	/** Update the sprite facing direction */
 	UFUNCTION(BlueprintCallable, Category = "CameraMovement")
 	void UpdatePlayerCameraFacingState();
+
+	UFUNCTION()
+	void UpdateSpriteRotation();
 
 #pragma endregion
 

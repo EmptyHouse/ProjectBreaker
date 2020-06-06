@@ -22,7 +22,6 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -32,14 +31,13 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardFace;
-	SetShouldUseCameraDirection(true);
 	UpdatePlayerCameraFacingState();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//UpdateSpriteRotation();
 	UpdatePlayerCameraFacingState();
 }
 
@@ -56,7 +54,6 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis(RotateCameraInput, this, &APlayerCharacter::HandleCameraRotation);
 	PlayerInputComponent->BindAction(JumpInput, EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
 	PlayerInputComponent->BindAction(JumpInput, EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
-
 }
 
 void APlayerCharacter::HandleCameraRotation(float axis)
@@ -94,43 +91,47 @@ void APlayerCharacter::UpdatePlayerCameraFacingState()
 		const float SpriteCameraAngle = UKismetMathLibrary::DegAcos(FVector::DotProduct(CameraForwardVector, ActorForwardVector));
 		const FVector CrossProduct = FVector::CrossProduct(CameraForwardVector, ActorForwardVector);
 
-		FVector NewRotation = FVector::ForwardVector;
-
 		const float FinalAngle = FMath::Sign(CrossProduct.Z) > 0 ? 360.f - SpriteCameraAngle : SpriteCameraAngle;
-		UE_LOG(LogTemp, Warning, TEXT("Final angle: %f"), FinalAngle);
+
+		ESpriteCameraFacingDirection NewCameraFacingDirection = ESpriteCameraFacingDirection::ForwardFace;
 
 		if (FinalAngle >= 335.f || FinalAngle < 35.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardFace;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::ForwardFace;
 		}
 		else if (FinalAngle >= 35.f && FinalAngle < 65.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardRight;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::ForwardFace;
 		}
 		else if (FinalAngle >= 65.f && FinalAngle < 125.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::RightFace;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::RightFace;
 		}
 		else if (FinalAngle >= 125.f && FinalAngle < 155.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::BackRight;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::RightFace;
 		}
 		else if (FinalAngle >= 155.f && FinalAngle < 215.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::BackFace;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::BackFace;
 		}
 		else if (FinalAngle >= 215.f && FinalAngle < 245.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::BackLeft;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::BackFace;
 		}
 		else if (FinalAngle >= 245.f && FinalAngle < 305.f)
 		{
-			NewRotation = FVector(-5.f, 0.0f, 0.0f);
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::LeftFace;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::LeftFace;
 		}
 		else if (FinalAngle >= 305.f && FinalAngle < 335.f)
 		{
-			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardLeft;
+			NewCameraFacingDirection = ESpriteCameraFacingDirection::LeftFace;
+		}
+
+		if (CurrentCameraFacingDirection != NewCameraFacingDirection)
+		{
+			UpdateSpriteRotation();
+			CurrentCameraFacingDirection = NewCameraFacingDirection;
 		}
 	}
 
@@ -149,6 +150,16 @@ void APlayerCharacter::SetShouldUseCameraDirection(bool bShouldUseCamera)
 void APlayerCharacter::SetSpriteFacingDirection(ESpriteCameraFacingDirection NewFacingDirection)
 {
 	CurrentCameraFacingDirection = NewFacingDirection;
+}
+
+void APlayerCharacter::UpdateSpriteRotation()
+{
+	FRotator CameraRotation = GetControlRotation();
+	CameraRotation.Pitch = 0.f;
+	CameraRotation.Roll = 0.f;
+	CameraRotation.Yaw += 90.f;
+	FString rot = CameraRotation.ToString();
+	GetSprite()->SetRelativeRotation(CameraRotation);
 }
 
 #pragma endregion

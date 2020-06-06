@@ -36,13 +36,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, meta = (AllowProtectedAccess = "true"))
 	UCameraComponent* FollowCamera;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowProtectedAccess = "true"))
-	float CharacterRotationRate = 2.0f;
-
 private:
-
-	UFUNCTION()
-	void HandleCameraRotation(float axis);
 	
 	UFUNCTION()
 	void HandleVerticalMovement(float axis);

@@ -8,15 +8,32 @@ APlayerCharacter::APlayerCharacter()
 {
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	SpringArm->SetupAttachment(GetRootComponent());
-	SpringArm->SetRelativeLocation(FVector::ZeroVector);
+
+	// Use the controller yaw (z-axis) rotation, but allow for independent pitch and roll.
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->bInheritYaw = true;
+	SpringArm->bInheritPitch = false;
+	SpringArm->bInheritRoll = false;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Character Camera"));
-	FollowCamera->AttachTo(SpringArm);
+	FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
+
+
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -25,6 +42,12 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::HandleHorizontalMovement);
 	PlayerInputComponent->BindAxis("MoveUp", this, &APlayerCharacter::HandleVerticalMovement);
+	PlayerInputComponent->BindAxis("RotateCamera", this, &APlayerCharacter::HandleCameraRotation);
+}
+
+void APlayerCharacter::HandleCameraRotation(float axis)
+{
+	AddControllerYawInput(axis * CharacterRotationRate);
 }
 
 void APlayerCharacter::HandleVerticalMovement(float axis)
@@ -32,7 +55,6 @@ void APlayerCharacter::HandleVerticalMovement(float axis)
 	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	FVector MoveDirection = CameraManager->GetActorForwardVector() * axis;
 	AddMovementInput(MoveDirection);
-
 }
 
 void APlayerCharacter::HandleHorizontalMovement(float axis)

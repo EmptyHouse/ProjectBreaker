@@ -51,11 +51,11 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::HandleHorizontalMovement);
-	PlayerInputComponent->BindAxis("MoveUp", this, &APlayerCharacter::HandleVerticalMovement);
-	PlayerInputComponent->BindAxis("RotateCamera", this, &APlayerCharacter::HandleCameraRotation);
-	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
+	PlayerInputComponent->BindAxis(MoveRightInput, this, &APlayerCharacter::HandleHorizontalMovement);
+	PlayerInputComponent->BindAxis(MoveForwardInput, this, &APlayerCharacter::HandleVerticalMovement);
+	PlayerInputComponent->BindAxis(RotateCameraInput, this, &APlayerCharacter::HandleCameraRotation);
+	PlayerInputComponent->BindAction(JumpInput, EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
+	PlayerInputComponent->BindAction(JumpInput, EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
 
 }
 
@@ -97,20 +97,18 @@ void APlayerCharacter::UpdatePlayerCameraFacingState()
 		FVector NewRotation = FVector::ForwardVector;
 
 		const float FinalAngle = FMath::Sign(CrossProduct.Z) > 0 ? 360.f - SpriteCameraAngle : SpriteCameraAngle;
+		UE_LOG(LogTemp, Warning, TEXT("Final angle: %f"), FinalAngle);
 
 		if (FinalAngle >= 335.f || FinalAngle < 35.f)
 		{
-			NewRotation = FVector::ZeroVector;
 			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardFace;
 		}
 		else if (FinalAngle >= 35.f && FinalAngle < 65.f)
 		{
-			NewRotation = FVector(.25f, 0.0f, 0.0f);
 			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardRight;
 		}
 		else if (FinalAngle >= 65.f && FinalAngle < 125.f)
 		{
-			NewRotation = FVector(.5f, 0.0f, 0.0f);
 			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::RightFace;
 		}
 		else if (FinalAngle >= 125.f && FinalAngle < 155.f)
@@ -119,7 +117,6 @@ void APlayerCharacter::UpdatePlayerCameraFacingState()
 		}
 		else if (FinalAngle >= 155.f && FinalAngle < 215.f)
 		{
-			NewRotation = FVector(1.f, 0.0f, 0.0f);
 			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::BackFace;
 		}
 		else if (FinalAngle >= 215.f && FinalAngle < 245.f)
@@ -135,9 +132,6 @@ void APlayerCharacter::UpdatePlayerCameraFacingState()
 		{
 			CurrentCameraFacingDirection = ESpriteCameraFacingDirection::ForwardLeft;
 		}
-
-		FQuat NewQuat = NewRotation.ToOrientationQuat();
-		SetActorRotation(NewQuat);
 	}
 
 	if (DirectionToFlipbookMap.Contains(CurrentCameraFacingDirection))

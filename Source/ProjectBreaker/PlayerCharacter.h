@@ -50,12 +50,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, meta = (AllowProtectedAccess = "true"), Category = "Camera")
 	UCameraComponent* FollowCamera;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowProtectedAccess = "true"), Category = "Movement")
-	float CharacterRotationRate = 2.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowProtectedAccess = "true"), Category = "Movement")
-	float CharacterMovementRate = 1.0f;
-
 #pragma region Camera Movement Methods
 
 public:
@@ -87,7 +81,7 @@ private:
 	}
 
 	/** If true, the sprite will rotate depending on the camera's angle relative to the forward vector */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Camera Movement")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "CameraMovement")
 	bool bShouldUseCameraDirection;
 
 	/** Update the sprite facing direction */
@@ -95,6 +89,26 @@ private:
 	void UpdatePlayerCameraFacingState();
 
 #pragma endregion
+
+#pragma region Player Input
+
+protected:
+
+	const FName JumpInput = FName(TEXT("Jump"));
+
+	const FName MoveForwardInput = FName(TEXT("MoveForward"));
+
+	const FName MoveRightInput = FName(TEXT("MoveRight"));
+
+	const FName RotateCameraInput = FName(TEXT("RotateCamera"));
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowProtectedAccess = "true"), Category = "Movement")
+	float CharacterRotationRate = 2.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowProtectedAccess = "true"), Category = "Movement")
+	float CharacterMovementRate = 1.0f;
 
 private:
 

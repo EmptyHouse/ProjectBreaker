@@ -60,12 +60,11 @@ protected:
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "CameraMovement")
 	/** Sets the character to use the camera's facing direction for its viewing sprites */
 	void SetShouldUseCameraDirection(bool bShouldUseCamera);
 
 	/** Sets the sprite facing direction of this actor */
-	UFUNCTION(BlueprintCallable, Category = "CameraMovement")
+	UFUNCTION(BlueprintCallable, Category = "Camera Movement")
 	void SetSpriteFacingDirection(ESpriteCameraFacingDirection NewFacingDirection);
 
 protected:
@@ -77,7 +76,7 @@ protected:
 private:
 
 	/** Current direction the camera is facing relative to the sprite's forward vector */
-	UPROPERTY(VisibleAnywhere, Category = "CameraMovement")
+	UPROPERTY(VisibleAnywhere, Category = "Camera Movement")
 	TEnumAsByte<ESpriteCameraFacingDirection> CurrentCameraFacingDirection;
 	
 	/** Returns the current camera view relative to the forward vector of the sprite */
@@ -91,7 +90,7 @@ private:
 	bool bShouldUseCameraDirection;
 
 	/** Update the sprite facing direction */
-	UFUNCTION(BlueprintCallable, Category = "CameraMovement")
+	UFUNCTION(BlueprintCallable, Category = "Camera Movement")
 	void UpdatePlayerCameraFacingState();
 
 #pragma endregion

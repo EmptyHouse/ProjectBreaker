@@ -23,8 +23,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::HandleHorizontalMovement);
-	PlayerInputComponent->BindAxis("MoveUp", this, &APlayerCharacter::HandleVerticalMovement);
+	PlayerInputComponent->BindAxis("Horizontal", this, &APlayerCharacter::HandleHorizontalMovement);
+	PlayerInputComponent->BindAxis("Vertical", this, &APlayerCharacter::HandleVerticalMovement);
 }
 
 void APlayerCharacter::HandleVerticalMovement(float axis)
@@ -39,5 +39,4 @@ void APlayerCharacter::HandleHorizontalMovement(float axis)
 {
 	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	FVector MoveDirection = CameraManager->GetActorRightVector() * axis;
-	AddMovementInput(MoveDirection);
 }

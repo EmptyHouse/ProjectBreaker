@@ -14,4 +14,7 @@ class PROJECTBREAKER_API AProjectBreakerGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+
+public:
+	virtual void BeginPlay() override;
 };

@@ -3,6 +3,7 @@
 #include "PlayerCompanion.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Math/UnrealMathVectorCommon.h"
 
 
 // Sets default values
@@ -11,13 +12,12 @@ APlayerCompanion::APlayerCompanion()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	TargetPlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	CapsuleCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
 	RootComponent = CapsuleCollider;
 
 	AssociatedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CompanionMesh"));
-	AssociatedMesh->AttachTo(RootComponent);
+	AssociatedMesh->SetupAttachment(RootComponent);
 
 }
 
@@ -25,7 +25,14 @@ APlayerCompanion::APlayerCompanion()
 void APlayerCompanion::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	TargetPlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (TargetPlayerCharacter)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("YAS"));
+	}
+	else {UE_LOG(LogTemp, Warning, TEXT("NAH")) }
+
 }
 
 // Called every frame
@@ -33,9 +40,11 @@ void APlayerCompanion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdateCompanionPosition(DeltaTime);
+	UpdateCompanionRotation();
+
 	UpdateCompanionHover(DeltaTime);
 
-	UpdateCompanionRotation();
 
 }
 
@@ -47,12 +56,6 @@ void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 #pragma region getter/setters
 
-/* Returns the current speed of our companion */
-FVector APlayerCompanion::GetSpeed()
-{
-	return CurrentSpeed;
-}
-
 #pragma endregion
 
 #pragma region movement
@@ -62,14 +65,24 @@ void APlayerCompanion::UpdateCompanionHover(float DeltaTime)
 {
 	CurrentHoverTimer += DeltaTime;
 	if (CurrentHoverTimer > 1000.f) CurrentHoverTimer -= 1000;
-	float OriginZ = GetActorLocation().Z;
-	AssociatedMesh->SetWorldLocation(FVector(0, 0, OriginZ + UKismetMathLibrary::Sin(CurrentHoverTimer * RateOfHover) * HeightOfHover));
+	FVector OriginLocation = GetActorLocation();
+	AssociatedMesh->SetWorldLocation(FVector(OriginLocation.X, OriginLocation.Y, OriginLocation.Z + UKismetMathLibrary::Sin(CurrentHoverTimer * RateOfHover) * HeightOfHover));
 }
 
 /* Updates the desired position of the companion based on the target player character */
-void APlayerCompanion::UpdateCompanionPosition()
+void APlayerCompanion::UpdateCompanionPosition(float DeltaTime)
 {
+	FVector FollowPosition = TargetPlayerCharacter->GetActorLocation() + FollowPlayerOffset;
+	FVector RadiusOffset = (GetActorLocation() - TargetPlayerCharacter->GetActorLocation());
+	RadiusOffset.Z = 0;
+	RadiusOffset.Normalize();
 
+	RadiusOffset *= FollowRadiusFromPlayer;
+
+	FollowPosition += RadiusOffset;//our goal follow point
+	FVector AdjustedGoalLocation = FMath::Lerp<FVector>(GetActorLocation(), FollowPosition, 5 * DeltaTime);
+
+	SetActorLocation(AdjustedGoalLocation);
 }
 
 

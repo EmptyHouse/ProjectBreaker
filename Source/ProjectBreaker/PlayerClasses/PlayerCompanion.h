@@ -18,12 +18,10 @@ class PROJECTBREAKER_API APlayerCompanion : public APawn
 public:
 	APlayerCompanion();
 
-	FVector GetSpeed();
-
 private:
-	/* The current speed of our companion character */
-	UPROPERTY(BlueprintReadWrite, Category = "Movmement", meta=(AllowPrivateAccess="true"))
-	FVector CurrentSpeed;
+	/* Input Name For our Fire Button */
+	const FName INPUT_COMPANION_FIRE = FName(TEXT("CompanionFire"));
+
 
 	/* The current time for our hover property */
 	float CurrentHoverTimer;
@@ -41,8 +39,10 @@ protected:
 
 	/* Updates the mesh component offset based on the hover values. (Primarily for visual purposes)*/
 	virtual void UpdateCompanionHover(float DeltaTime);
+
 	/*Updates the companions position based on the position of the player */
-	virtual void UpdateCompanionPosition();
+	virtual void UpdateCompanionPosition(float DeltaTime);
+
 	/* Updates the rotation based on the player's aim offset */
 	virtual void UpdateCompanionRotation();
 
@@ -79,6 +79,14 @@ public:
 	/* The mesh component of our companion */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
 	UStaticMeshComponent* AssociatedMesh;
+
+	/* The offset from the player character's position that we will follow. */
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "VisualMovement")
+	FVector FollowPlayerOffset = FVector(0, 0, 15);
+
+	/* The buffer distance that we will give our player we don't want to follow too closely to them */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VisualMovement")
+	float FollowRadiusFromPlayer = 10.f;
 
 	
 };

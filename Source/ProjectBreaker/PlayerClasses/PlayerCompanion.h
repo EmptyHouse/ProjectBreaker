@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Engine/StaticMesh.h"
+
+
 #include "PlayerCompanion.generated.h"
 
 UCLASS()
@@ -12,18 +15,43 @@ class PROJECTBREAKER_API APlayerCompanion : public APawn
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	APlayerCompanion();
 
+private:
+	/* The current speed of our companion character */
+	UPROPERTY(BlueprintReadWrite, Category = "Movmement", meta=(AllowPrivateAccess="true"))
+	FVector CurrentSpeed;
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
+	/* The  rate at which our companion will rotae */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
+	float RotationRate;
+
+	/* The Maximum speed at which our character will move */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
+	float MaxSpeed;
+
+	/* The acceleration rate of our companion */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
+	float AccelerationRate;
+
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VisualMovement")
+	float HeightOfHover;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VisualMovment")
+	float RateOfHover;
+
+	/* The mesh component of our companion */
+	UPROPERTY(BlueprintReadWrite, Category = "Visual")
+	UStaticMesh* AssociatedMesh;
 
 };

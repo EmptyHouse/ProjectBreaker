@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "Engine/StaticMesh.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 
 #include "PlayerCompanion.generated.h"
@@ -17,13 +18,22 @@ class PROJECTBREAKER_API APlayerCompanion : public APawn
 public:
 	APlayerCompanion();
 
+	FVector GetSpeed();
+
 private:
 	/* The current speed of our companion character */
 	UPROPERTY(BlueprintReadWrite, Category = "Movmement", meta=(AllowPrivateAccess="true"))
 	FVector CurrentSpeed;
 
+	/* The current time for our hover property */
+	float CurrentHoverTimer;
+
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void UpdateCompanionHover();
+	virtual void UpdateCompanionPosition();
+	virtual void UpdateCompanionRotation();
 
 public:	
 
@@ -33,25 +43,28 @@ public:
 public:
 	/* The  rate at which our companion will rotae */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
-	float RotationRate;
+	float RotationRate = 25.f;
 
 	/* The Maximum speed at which our character will move */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
-	float MaxSpeed;
+	float MaxSpeed = 100.f;
 
 	/* The acceleration rate of our companion */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
-	float AccelerationRate;
+	float AccelerationRate = 100.f;
 
-
+	/* Height of our Hover */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VisualMovement")
-	float HeightOfHover;
+	float HeightOfHover = 20.f;
 
+	/* The rate at which our companion will hover */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VisualMovment")
-	float RateOfHover;
+	float RateOfHover = 25.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	UCapsuleComponent* CapsuleCollider;
 
 	/* The mesh component of our companion */
-	UPROPERTY(BlueprintReadWrite, Category = "Visual")
-	UStaticMesh* AssociatedMesh;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	UStaticMeshComponent* AssociatedMesh;
 };

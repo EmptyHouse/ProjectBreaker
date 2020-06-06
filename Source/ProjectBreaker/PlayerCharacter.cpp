@@ -43,6 +43,9 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::HandleHorizontalMovement);
 	PlayerInputComponent->BindAxis("MoveUp", this, &APlayerCharacter::HandleVerticalMovement);
 	PlayerInputComponent->BindAxis("RotateCamera", this, &APlayerCharacter::HandleCameraRotation);
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
+
 }
 
 void APlayerCharacter::HandleCameraRotation(float axis)

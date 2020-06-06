@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "PlayerClasses/PlayerCompanion.h"
 #include "PlayerCharacter.generated.h"
 
 /**

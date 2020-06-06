@@ -1,2 +1,0 @@
-C:\Users\Thurston\Documents\GitHub\ProjectBreaker\ProjectBreaker\Intermediate\Build\Win64\UE4Editor\Development\ProjectBreaker\Definitions.ProjectBreaker.h
-C:\Users\Thurston\Documents\GitHub\ProjectBreaker\ProjectBreaker\Source\ProjectBreaker\ProjectBreaker.h

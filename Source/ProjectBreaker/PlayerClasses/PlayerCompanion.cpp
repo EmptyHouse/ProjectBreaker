@@ -27,12 +27,6 @@ void APlayerCompanion::BeginPlay()
 	Super::BeginPlay();
 
 	TargetPlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (TargetPlayerCharacter)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("YAS"));
-	}
-	else {UE_LOG(LogTemp, Warning, TEXT("NAH")) }
-
 }
 
 // Called every frame

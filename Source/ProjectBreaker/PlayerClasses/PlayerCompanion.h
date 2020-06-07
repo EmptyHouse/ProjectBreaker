@@ -22,16 +22,20 @@ private:
 	/* Input Name For our Fire Button */
 	const FName INPUT_COMPANION_FIRE = FName(TEXT("CompanionFire"));
 
+	const float TIME_BETWEEN_SHOTS = .15F;
+
+	/* Bool indicates whether our companion should be shooting */
+	bool bIsShooting;
+
+	/* The time remaining until the next shot can be fired. If this value is <= 0 you can shoot */
+	float TimeRemainingUntilNextShot = 0;
+
 
 	/* The current time for our hover property */
 	float CurrentHoverTimer;
 
 	/* Reference to the Player Character Pawn */
 	AThirdPersonCharacter* TargetPlayerCharacter;
-
-	/* Gets the aim offset vector for our player based on the controller input or mouse position from the companion */
-	FVector GetAimOffset();
-
 
 	void FireWeaponPressed();
 

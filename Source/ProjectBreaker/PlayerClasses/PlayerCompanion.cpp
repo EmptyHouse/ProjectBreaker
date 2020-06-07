@@ -6,6 +6,8 @@
 #include "Math/UnrealMathVectorCommon.h"
 #include "Engine/World.h"
 
+#include "DrawDebugHelpers.h"
+
 
 // Sets default values
 APlayerCompanion::APlayerCompanion()
@@ -20,6 +22,8 @@ APlayerCompanion::APlayerCompanion()
 	AssociatedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CompanionMesh"));
 	AssociatedMesh->SetupAttachment(RootComponent);
 
+	bIsShooting = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -28,6 +32,7 @@ void APlayerCompanion::BeginPlay()
 	Super::BeginPlay();
 
 	TargetPlayerCharacter = Cast<AThirdPersonCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	ensure(TargetPlayerCharacter);
 }
 
 // Called every frame
@@ -52,7 +57,17 @@ void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 #pragma region combat functions
+/* The fire weapon button was pressed */
+void APlayerCompanion::FireWeaponPressed()
+{
+	bIsShooting = true;
+}
 
+/* The fire weapon button was released */
+void APlayerCompanion::FireWeaponReleased()
+{
+	bIsShooting = false;
+}
 #pragma endregion
 
 #pragma region movement
@@ -86,14 +101,32 @@ void APlayerCompanion::UpdateCompanionPosition(float DeltaTime)
 /* Updates the Companion Rotation based on the position of the player's aim offset */
 void APlayerCompanion::UpdateCompanionRotation()
 {
+	FHitResult OutHit;
+	FVector Origin;
+	FVector CameraDirection;
+	APlayerController* PlayerController = Cast<APlayerController>(TargetPlayerCharacter->Controller);
+	if (!PlayerController || !PlayerController->DeprojectMousePositionToWorld(Origin, CameraDirection))
+	{
+		return;
+	}
 
-}
 
-/* Gets the aim offset vector for our player.*/
-FVector APlayerCompanion::GetAimOffset()
-{
+	FVector End = Origin + CameraDirection * 100000.f;
+	ECollisionChannel TraceChannel = ECollisionChannel::ECC_GameTraceChannel1;
+	FCollisionQueryParams Params;
+	Params.bDebugQuery = true;
+	FCollisionResponseParams ResponseParam;
 
-	return FVector();
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Origin, End, TraceChannel, Params, ResponseParam))
+	{
+		FVector PointToLookAt = OutHit.ImpactPoint - GetActorLocation();
+		PointToLookAt.Z = 0;
+		PointToLookAt.Normalize();
+		float DesiredYawRotation = FMath::RadiansToDegrees(FMath::Atan2(PointToLookAt.Y, PointToLookAt.X));
+
+		
+		SetActorRotation(FRotator(0, DesiredYawRotation, 0));
+	}
 }
 #pragma endregion
 

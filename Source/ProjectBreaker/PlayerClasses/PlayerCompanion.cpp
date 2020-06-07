@@ -63,7 +63,7 @@ void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(INPUT_COMPANION_FIRE, EInputEvent::IE_Pressed, this, &APlayerCompanion::FireWeaponPressed);
 	PlayerInputComponent->BindAction(INPUT_COMPANION_FIRE, EInputEvent::IE_Released, this, &APlayerCompanion::FireWeaponReleased);
 
-	
+	UE_LOG(LogTemp, Warning, TEXT("INPUT SET"));
 
 }
 

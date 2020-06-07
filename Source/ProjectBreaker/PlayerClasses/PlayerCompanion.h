@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "ThirdPersonCharacter.h"
+#include "Projectiles/BaseProjectile.h"
 
 #include "PlayerCompanion.generated.h"
 
@@ -39,8 +40,11 @@ private:
 
 	void FireWeaponPressed();
 
-
+	/*  */
 	void FireWeaponReleased();
+
+	/*  */
+	void SpawnNewProjectileIfReady();
 	
 
 protected:
@@ -96,6 +100,9 @@ public:
 	/* The buffer distance that we will give our player we don't want to follow too closely to them */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VisualMovement")
 	float FollowRadiusFromPlayer = 10.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	TSubclassOf<ABaseProjectile> ProjectileToLaunch;
 
 	
 };

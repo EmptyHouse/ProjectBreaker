@@ -14,6 +14,7 @@ APlayerCompanion::APlayerCompanion()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 
 	CapsuleCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
@@ -33,6 +34,7 @@ void APlayerCompanion::BeginPlay()
 
 	TargetPlayerCharacter = Cast<AThirdPersonCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	ensure(TargetPlayerCharacter);
+	ensure(ProjectileToLaunch);
 }
 
 // Called every frame
@@ -45,6 +47,11 @@ void APlayerCompanion::Tick(float DeltaTime)
 
 	UpdateCompanionHover(DeltaTime);
 
+	if (bIsShooting)
+	{
+		TimeRemainingUntilNextShot -= DeltaTime;
+		SpawnNewProjectileIfReady();
+	}
 
 }
 
@@ -53,7 +60,11 @@ void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//PlayerInputComponent->BindAction()
+	PlayerInputComponent->BindAction(INPUT_COMPANION_FIRE, EInputEvent::IE_Pressed, this, &APlayerCompanion::FireWeaponPressed);
+	PlayerInputComponent->BindAction(INPUT_COMPANION_FIRE, EInputEvent::IE_Released, this, &APlayerCompanion::FireWeaponReleased);
+
+	
+
 }
 
 #pragma region combat functions
@@ -61,12 +72,28 @@ void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCompanion::FireWeaponPressed()
 {
 	bIsShooting = true;
+	TimeRemainingUntilNextShot = 0;
+	SpawnNewProjectileIfReady();
+	UE_LOG(LogTemp, Warning, TEXT("Press"));
 }
 
 /* The fire weapon button was released */
 void APlayerCompanion::FireWeaponReleased()
 {
 	bIsShooting = false;
+	UE_LOG(LogTemp, Warning, TEXT("Release"));
+}
+
+/* Spawns a new  */
+void APlayerCompanion::SpawnNewProjectileIfReady()
+{
+	if (TimeRemainingUntilNextShot > 0) { return; }
+	TimeRemainingUntilNextShot += TIME_BETWEEN_SHOTS;
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Name = FName(TEXT("Bullet"));
+	GetWorld()->SpawnActor<ABaseProjectile>(ProjectileToLaunch.Get(), GetActorLocation() + GetActorForwardVector() * 25, GetActorRotation(), SpawnParameters);
+	UE_LOG(LogTemp, Warning, TEXT("SPANWED"));
 }
 #pragma endregion
 
@@ -123,9 +150,8 @@ void APlayerCompanion::UpdateCompanionRotation()
 		PointToLookAt.Z = 0;
 		PointToLookAt.Normalize();
 		float DesiredYawRotation = FMath::RadiansToDegrees(FMath::Atan2(PointToLookAt.Y, PointToLookAt.X));
-
 		
-		SetActorRotation(FRotator(0, DesiredYawRotation, 0));
+		SetActorRotation(FMath::Lerp(GetActorRotation(), FRotator(0, DesiredYawRotation, 0), .1f));
 	}
 }
 #pragma endregion

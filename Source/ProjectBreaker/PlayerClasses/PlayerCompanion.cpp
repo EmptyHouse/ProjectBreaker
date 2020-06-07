@@ -14,8 +14,6 @@ APlayerCompanion::APlayerCompanion()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
-
 
 	CapsuleCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
 	RootComponent = CapsuleCollider;
@@ -32,8 +30,6 @@ void APlayerCompanion::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TargetPlayerCharacter = Cast<AThirdPersonCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	ensure(TargetPlayerCharacter);
 	ensure(ProjectileToLaunch);
 }
 
@@ -41,9 +37,6 @@ void APlayerCompanion::BeginPlay()
 void APlayerCompanion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	UpdateCompanionPosition(DeltaTime);
-	UpdateCompanionRotation();
 
 	UpdateCompanionHover(DeltaTime);
 
@@ -58,12 +51,12 @@ void APlayerCompanion::Tick(float DeltaTime)
 // Called to bind functionality to input
 void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	/*Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction(INPUT_COMPANION_FIRE, EInputEvent::IE_Pressed, this, &APlayerCompanion::FireWeaponPressed);
 	PlayerInputComponent->BindAction(INPUT_COMPANION_FIRE, EInputEvent::IE_Released, this, &APlayerCompanion::FireWeaponReleased);
 
-	UE_LOG(LogTemp, Warning, TEXT("INPUT SET"));
+	UE_LOG(LogTemp, Warning, TEXT("INPUT SET"));*/
 
 }
 
@@ -74,14 +67,12 @@ void APlayerCompanion::FireWeaponPressed()
 	bIsShooting = true;
 	TimeRemainingUntilNextShot = 0;
 	SpawnNewProjectileIfReady();
-	UE_LOG(LogTemp, Warning, TEXT("Press"));
 }
 
 /* The fire weapon button was released */
 void APlayerCompanion::FireWeaponReleased()
 {
 	bIsShooting = false;
-	UE_LOG(LogTemp, Warning, TEXT("Release"));
 }
 
 /* Spawns a new  */
@@ -91,9 +82,9 @@ void APlayerCompanion::SpawnNewProjectileIfReady()
 	TimeRemainingUntilNextShot += TIME_BETWEEN_SHOTS;
 
 	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Name = FName(TEXT("Bullet"));
+	SpawnParameters.Name = FName(TEXT("Bullet"), ProjectileCount++);
+	SpawnParameters.bNoFail = true;
 	GetWorld()->SpawnActor<ABaseProjectile>(ProjectileToLaunch.Get(), GetActorLocation() + GetActorForwardVector() * 25, GetActorRotation(), SpawnParameters);
-	UE_LOG(LogTemp, Warning, TEXT("SPANWED"));
 }
 #pragma endregion
 
@@ -109,7 +100,7 @@ void APlayerCompanion::UpdateCompanionHover(float DeltaTime)
 }
 
 /* Updates the desired position of the companion based on the target player character */
-void APlayerCompanion::UpdateCompanionPosition(float DeltaTime)
+void APlayerCompanion::UpdateCompanionPosition(float DeltaTime, AActor* TargetPlayerCharacter)
 {
 	FVector FollowPosition = TargetPlayerCharacter->GetActorLocation() + FollowPlayerOffset;
 	FVector RadiusOffset = (GetActorLocation() - TargetPlayerCharacter->GetActorLocation());
@@ -126,12 +117,11 @@ void APlayerCompanion::UpdateCompanionPosition(float DeltaTime)
 
 
 /* Updates the Companion Rotation based on the position of the player's aim offset */
-void APlayerCompanion::UpdateCompanionRotation()
+void APlayerCompanion::UpdateCompanionRotation(APlayerController* PlayerController)
 {
 	FHitResult OutHit;
 	FVector Origin;
 	FVector CameraDirection;
-	APlayerController* PlayerController = Cast<APlayerController>(TargetPlayerCharacter->Controller);
 	if (!PlayerController || !PlayerController->DeprojectMousePositionToWorld(Origin, CameraDirection))
 	{
 		return;

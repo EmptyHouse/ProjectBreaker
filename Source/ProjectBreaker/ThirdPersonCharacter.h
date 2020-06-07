@@ -11,6 +11,7 @@
 #include "Components/TimelineComponent.h"
 #include "Engine/DataTable.h"
 #include "WeaponBase.h"
+#include "PlayerClasses/PlayerCompanion.h"
 #include "ThirdPersonCharacter.generated.h"
 
 #pragma region Structs_And_Enums
@@ -123,9 +124,16 @@ class PROJECTBREAKER_API AThirdPersonCharacter : public ACharacter
 	EAttackType CurrentAttackType;
 
 	FVector LockOnTarget;
+
+	/* The associated player companion */
+	APlayerCompanion* AssignedPlayerCompanion;
 		
 public:
 	AThirdPersonCharacter();
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Companion")
+	TSubclassOf<APlayerCompanion> PlayerCompanionToSpawn;
+	
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -158,11 +166,43 @@ protected:
 
 protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowProtectedAccess = "true"))
+	float MaxRunSpeedMultiplier = 7.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowProtectedAccess = "true"))
+	float RunSpeedLerpValue = .09f;
+
+	/** If sprint key time held is more than this value, start sprinting */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float KeyHoldTimeToSprint = 1.f;
+
+	UPROPERTY(Transient)
+	float SprintKeyTimeHeld = 0.f;
+
+	UPROPERTY(Transient)
+	bool bIsSprintKeyHeld = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowProtectedAccess = "true"))
+	float MovementSpeedMultiplier;
+
+	/** Amount to increment walk speed */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowProtectedAccess = "true"))
+	float MovementSpeedIncrementValue = 100.f;
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
+	
+	/** Handles the sprint key */
+	void HandleMovementKeyPressed();
+	
+	/** Handle releasing the sprint key */
+	void HandleMovementKeyReleased();
+
+	/** Updates movement logic during each tick */
+	void UpdateCharacterMovement(float DeltaTime);
 
 	/** 
 	 * Called via input to turn at a given rate. 
@@ -202,6 +242,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void BeginLockOn(ABaseEnemy* enemyToTarget);
+
+	void CompanionFirePressed();
+
+	void CompanionFireReleased();
 
 protected:
 

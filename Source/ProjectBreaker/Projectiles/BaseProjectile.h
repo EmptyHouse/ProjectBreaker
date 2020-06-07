@@ -33,6 +33,7 @@ private:
 	/* A reference to the previous position of our projectile component */
 	FVector PreviousPosition;
 
+	float DespawnAfterTime = 10.f;
 
 private:
 	/* Runs a check to see if we have collided with anything */

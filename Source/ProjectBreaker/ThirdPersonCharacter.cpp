@@ -98,6 +98,14 @@ void AThirdPersonCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Spawn player companion and setup
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Name = FName(TEXT("PlayerCompanion"));
+	SpawnParameters.bNoFail = true;
+	AssignedPlayerCompanion = GetWorld()->SpawnActor<APlayerCompanion>(PlayerCompanionToSpawn.Get(), GetActorLocation() + GetActorRightVector() * 50, GetActorRotation(), SpawnParameters);
+	
+
+
 	// Blueprint construction script may override delegate attachments. So instead of attaching components and delegates in constructor, attach in Begin Play.
 	// Set OnHit event delegates
 	LeftMeleeCollisionBox->OnComponentHit.AddDynamic(this, &AThirdPersonCharacter::OnAttackHit);
@@ -139,8 +147,10 @@ void AThirdPersonCharacter::BeginPlay()
 		}
 
 	}
-
 	IsKeyboardEnabled = true;
+	MovementSpeedMultiplier = 1.f;
+	SprintKeyTimeHeld = 0.f;
+	bIsSprintKeyHeld = false;
 }
 
 void AThirdPersonCharacter::Tick(float deltaTime)
@@ -155,6 +165,12 @@ void AThirdPersonCharacter::Tick(float deltaTime)
 	{
 		CameraLockOnTimeline.TickTimeline(deltaTime);
 	}
+
+	UpdateCharacterMovement(deltaTime);
+
+	//Companion
+	AssignedPlayerCompanion->UpdateCompanionPosition(deltaTime, this);
+	AssignedPlayerCompanion->UpdateCompanionRotation(Cast<APlayerController>(Controller));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -169,6 +185,8 @@ void AThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AThirdPersonCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AThirdPersonCharacter::MoveRight);
+	PlayerInputComponent->BindAction("MovementAction", IE_Pressed, this, &AThirdPersonCharacter::HandleMovementKeyPressed);
+	PlayerInputComponent->BindAction("MovementAction", IE_Released, this, &AThirdPersonCharacter::HandleMovementKeyReleased);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
@@ -182,14 +200,20 @@ void AThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AThirdPersonCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AThirdPersonCharacter::TouchStopped);
 
+	/*
 	// Lock-on methods
 	PlayerInputComponent->BindAction("LockOn", IE_Pressed, this, &AThirdPersonCharacter::OnLockOnPressed);
 	PlayerInputComponent->BindAction("LockOn", IE_Released, this, &AThirdPersonCharacter::EndLockOn);
+	*/
 
 	// Attack methods
 	PlayerInputComponent->BindAction("PlayerAttack", IE_Pressed, this, &AThirdPersonCharacter::PunchAttack);
 	//PlayerInputComponent->BindAction("Kick", IE_Pressed, this, &AThirdPersonCharacter::KickAttack);
 
+	
+	//Companion Inputs
+	PlayerInputComponent->BindAction(TEXT("CompanionFire"), IE_Pressed, this, &AThirdPersonCharacter::CompanionFirePressed);
+	PlayerInputComponent->BindAction(TEXT("CompanionFire"), IE_Released, this, &AThirdPersonCharacter::CompanionFireReleased);
 }
 
 void AThirdPersonCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
@@ -248,6 +272,34 @@ void AThirdPersonCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AThirdPersonCharacter::HandleMovementKeyPressed()
+{
+	bIsSprintKeyHeld = true;
+}
+
+void AThirdPersonCharacter::HandleMovementKeyReleased()
+{
+	bIsSprintKeyHeld = false;
+	if (SprintKeyTimeHeld < KeyHoldTimeToSprint)
+	{
+		// Combat roll or other movement
+	}
+}
+
+void AThirdPersonCharacter::UpdateCharacterMovement(float DeltaTime)
+{
+
+	bool bShouldUpdateMovementSpeedMultiplier = SprintKeyTimeHeld > KeyHoldTimeToSprint || MovementSpeedMultiplier > 0.f;
+	SprintKeyTimeHeld = bIsSprintKeyHeld ? SprintKeyTimeHeld + DeltaTime : 0.f;
+	
+	if (bShouldUpdateMovementSpeedMultiplier)
+	{
+		float LerpB = bIsSprintKeyHeld ? MaxRunSpeedMultiplier : 0.f;
+		MovementSpeedMultiplier = FMath::Lerp(MovementSpeedMultiplier, LerpB, RunSpeedLerpValue);
+	}
+	GetCharacterMovement()->MaxWalkSpeed = 600.f + (MovementSpeedMultiplier * MovementSpeedIncrementValue);
 }
 
 void AThirdPersonCharacter::RotateSideways(float value)
@@ -549,4 +601,15 @@ void AThirdPersonCharacter::Log(ELogLevel LoggingLevel, FString Message, ELogOut
 			break;
 		}
 	}
+}
+
+
+void AThirdPersonCharacter::CompanionFirePressed()
+{
+	AssignedPlayerCompanion->FireWeaponPressed();
+}
+
+void AThirdPersonCharacter::CompanionFireReleased()
+{
+	AssignedPlayerCompanion->FireWeaponReleased();
 }

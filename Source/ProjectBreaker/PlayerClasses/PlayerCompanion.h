@@ -6,7 +6,6 @@
 #include "GameFramework/Pawn.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "ThirdPersonCharacter.h"
 #include "Projectiles/BaseProjectile.h"
 
 #include "PlayerCompanion.generated.h"
@@ -20,9 +19,7 @@ public:
 	APlayerCompanion();
 
 private:
-	/* Input Name For our Fire Button */
-	const FName INPUT_COMPANION_FIRE = FName(TEXT("CompanionFire"));
-
+	
 	const float TIME_BETWEEN_SHOTS = .15F;
 
 	/* Bool indicates whether our companion should be shooting */
@@ -35,13 +32,7 @@ private:
 	/* The current time for our hover property */
 	float CurrentHoverTimer;
 
-	/* Reference to the Player Character Pawn */
-	AThirdPersonCharacter* TargetPlayerCharacter;
-
-	void FireWeaponPressed();
-
-	/*  */
-	void FireWeaponReleased();
+	int ProjectileCount = 0;
 
 	/*  */
 	void SpawnNewProjectileIfReady();
@@ -53,16 +44,18 @@ protected:
 	/* Updates the mesh component offset based on the hover values. (Primarily for visual purposes)*/
 	virtual void UpdateCompanionHover(float DeltaTime);
 
-	/*Updates the companions position based on the position of the player */
-	virtual void UpdateCompanionPosition(float DeltaTime);
-
-	/* Updates the rotation based on the player's aim offset */
-	virtual void UpdateCompanionRotation();
+	
 
 public:	
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	/* The fire weapon was pressed by our player */
+	void FireWeaponPressed();
+
+	/* the fire weapon was released by our player */
+	void FireWeaponReleased();
 
 public:
 	/* The  rate at which our companion will rotae */
@@ -104,5 +97,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
 	TSubclassOf<ABaseProjectile> ProjectileToLaunch;
 
+	/*Updates the companions position based on the position of the player */
+	virtual void UpdateCompanionPosition(float DeltaTime, AActor* TargetToFollow);
 	
+	/* Updates the rotation based on the player's aim offset */
+	virtual void UpdateCompanionRotation(APlayerController* PlayerController);
 };

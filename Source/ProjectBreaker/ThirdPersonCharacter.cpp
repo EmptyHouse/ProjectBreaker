@@ -135,7 +135,7 @@ void AThirdPersonCharacter::BeginPlay()
 		AWeaponBase* DefaultWeapon = GetWorld()->SpawnActor<AWeaponBase>(DefaultWeaponClass.Get(), SpawnLocation, SpawnRotation, SpawnParams);
 		if (DefaultWeapon)
 		{
-			DefaultWeapon->AttachToCharacter(this, FName(TEXT("Weapon_Socket_R")));
+			EquipWeapon(DefaultWeapon);
 		}
 
 	}
@@ -187,8 +187,8 @@ void AThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("LockOn", IE_Released, this, &AThirdPersonCharacter::EndLockOn);
 
 	// Attack methods
-	PlayerInputComponent->BindAction("Punch", IE_Pressed, this, &AThirdPersonCharacter::PunchAttack);
-	PlayerInputComponent->BindAction("Kick", IE_Pressed, this, &AThirdPersonCharacter::KickAttack);
+	PlayerInputComponent->BindAction("PlayerAttack", IE_Pressed, this, &AThirdPersonCharacter::PunchAttack);
+	//PlayerInputComponent->BindAction("Kick", IE_Pressed, this, &AThirdPersonCharacter::KickAttack);
 
 }
 
@@ -263,6 +263,14 @@ void AThirdPersonCharacter::RotateUpwards(float value)
 	if (bCanUseFreeLook)
 	{
 		AddControllerPitchInput(value);
+	}
+}
+
+void AThirdPersonCharacter::EquipWeapon(AWeaponBase* Weapon)
+{
+	if (Weapon && Weapon->AttachToCharacter(this, FName(TEXT("Weapon_Socket_R")), true))
+	{
+		EquippedWeapon = Weapon;
 	}
 }
 
@@ -385,6 +393,8 @@ void AThirdPersonCharacter::EndLockOn()
 
 void AThirdPersonCharacter::AttackInput(EAttackType AttackType)
 {
+	UE_LOG(LogTemp, Warning, TEXT("?"));
+	/*
 	FName dataTableRowName;
 	FString attackSocketLocation;
 	switch (AttackType) {
@@ -423,6 +433,12 @@ void AThirdPersonCharacter::AttackInput(EAttackType AttackType)
 			PlayAnimMontage(attackMontage->Montage, 1.0f, FName(*section));
 		}
 	}
+	*/
+
+	if (AttackMontage)
+	{
+		PlayAnimMontage(AttackMontage, 1.f, FName(TEXT("Start_1")));
+	}
 }
 
 void AThirdPersonCharacter::PunchAttack()
@@ -437,6 +453,9 @@ void AThirdPersonCharacter::KickAttack()
 
 void AThirdPersonCharacter::AttackStart()
 {
+
+	/*
+
 	Log(ELogLevel::INFO, __FUNCTION__, ELogOutput::SCREEN);
 	LeftMeleeCollisionBox->SetCollisionProfileName(CollisionProfile.Enabled);
 	RightMeleeCollisionBox->SetCollisionProfileName(CollisionProfile.Enabled);
@@ -445,10 +464,18 @@ void AThirdPersonCharacter::AttackStart()
 	LeftMeleeCollisionBox->SetNotifyRigidBodyCollision(true);
 
 	RightMeleeCollisionBox->SetNotifyRigidBodyCollision(true);
+	*/
+
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->OnWeaponAttackStart();
+	}
 }
 
 void AThirdPersonCharacter::AttackEnd()
 {
+
+	/*
 	Log(ELogLevel::INFO, __FUNCTION__, ELogOutput::SCREEN);
 	LeftMeleeCollisionBox->SetCollisionProfileName(CollisionProfile.Disabled);
 	RightMeleeCollisionBox->SetCollisionProfileName(CollisionProfile.Enabled);
@@ -457,6 +484,13 @@ void AThirdPersonCharacter::AttackEnd()
 	LeftMeleeCollisionBox->SetNotifyRigidBodyCollision(false);
 	RightMeleeCollisionBox->SetNotifyRigidBodyCollision(false);
 	IsKeyboardEnabled = true;
+
+	*/
+
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->OnWeaponAttackEnd();
+	}
 }
 
 void AThirdPersonCharacter::Log(ELogLevel LoggingLevel, FString Message, ELogOutput LogOutput)

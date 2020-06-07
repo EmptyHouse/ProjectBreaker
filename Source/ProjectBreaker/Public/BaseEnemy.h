@@ -43,6 +43,4 @@ private:
 
 	FVector StartingPosition;
 
-public:	
-
 };

@@ -153,6 +153,11 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack", meta = (AllowProtectedAcccess = "true"))
+	UAnimMontage* AttackMontage;
+
+protected:
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -204,6 +209,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<AWeaponBase> DefaultWeaponClass;
 
+	/** Currently equipped weapon */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowProtectedAccess = true), Category = "Weapon")
+	AWeaponBase* EquippedWeapon;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowProtectedAccess = true), Category = "Lock-On")
 	FVector LockOnOffset;
 
@@ -248,6 +257,9 @@ public:
 
 	UFUNCTION()
 	void OnLockOnCameraMoveFinished();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void EquipWeapon(AWeaponBase* Weapon);
 
 private:
 

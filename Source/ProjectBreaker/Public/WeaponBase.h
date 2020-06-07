@@ -34,13 +34,41 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float BaseWeaponDamage;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	bool bBelongsToPlayer;
+
+protected:
+
+	/** Logic when weapon hits an actor during attack. */
+	void OnWeaponAttackHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	/** Logic when weapon overlap an actor during attack. */
+	void OnWeaponAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** Returns true if actor overlapped/hit during an attack is valid */
+	bool IsValidAttackTarget(AActor* TargetActor);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Attack")
+	void OnWeaponAttackSuccessful(AActor* ActorHit, const FHitResult& Hit);
+	virtual void OnWeaponAttackSuccessful_Implementation(AActor* ActorHit, const FHitResult& Hit);
+
 #pragma endregion
 
 public:
 
 	/** Method to attach weapon to character */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	bool AttachToCharacter(AThirdPersonCharacter* NewWeaponOwner, const FName& AttachSocketName);
+	bool AttachToCharacter(AThirdPersonCharacter* NewWeaponOwner, const FName& AttachSocketName, bool bIsPlayerWeapon);
 
+	/** Logic for prepping weapon for attacking */
+	UFUNCTION(BlueprintNativeEvent, Category = "Attack")
+	void OnWeaponAttackStart();
+	virtual void OnWeaponAttackStart_Implementation();
+
+
+	/** Logic for disabling weapon after attack ends */
+	UFUNCTION(BlueprintNativeEvent, Category = "Attack")
+	void OnWeaponAttackEnd();
+	virtual void OnWeaponAttackEnd_Implementation();
 
 };

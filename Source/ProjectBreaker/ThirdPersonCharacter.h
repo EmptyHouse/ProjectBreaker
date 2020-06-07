@@ -10,6 +10,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Engine/DataTable.h"
+#include "WeaponBase.h"
 #include "ThirdPersonCharacter.generated.h"
 
 #pragma region Structs_And_Enums
@@ -198,6 +199,10 @@ protected:
 	void BeginLockOn(ABaseEnemy* enemyToTarget);
 
 protected:
+
+	/** Class of default weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<AWeaponBase> DefaultWeaponClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowProtectedAccess = true), Category = "Lock-On")
 	FVector LockOnOffset;

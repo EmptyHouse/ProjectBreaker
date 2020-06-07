@@ -123,6 +123,23 @@ void AThirdPersonCharacter::BeginPlay()
 		CameraLockOnTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
 	}
 
+
+	if (DefaultWeaponClass != nullptr)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		AWeaponBase* DefaultWeapon = GetWorld()->SpawnActor<AWeaponBase>(DefaultWeaponClass.Get(), SpawnLocation, SpawnRotation, SpawnParams);
+		if (DefaultWeapon)
+		{
+			DefaultWeapon->AttachToCharacter(this, FName(TEXT("Weapon_Socket_R")));
+		}
+
+	}
+
 	IsKeyboardEnabled = true;
 }
 

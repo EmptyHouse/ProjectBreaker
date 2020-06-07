@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathVectorCommon.h"
+#include "Engine/World.h"
 
 
 // Sets default values
@@ -26,7 +27,7 @@ void APlayerCompanion::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TargetPlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	TargetPlayerCharacter = Cast<AThirdPersonCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 }
 
 // Called every frame
@@ -46,9 +47,11 @@ void APlayerCompanion::Tick(float DeltaTime)
 void APlayerCompanion::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	//PlayerInputComponent->BindAction()
 }
 
-#pragma region getter/setters
+#pragma region combat functions
 
 #pragma endregion
 
@@ -89,6 +92,7 @@ void APlayerCompanion::UpdateCompanionRotation()
 /* Gets the aim offset vector for our player.*/
 FVector APlayerCompanion::GetAimOffset()
 {
+
 	return FVector();
 }
 #pragma endregion

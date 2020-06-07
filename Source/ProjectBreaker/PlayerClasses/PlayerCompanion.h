@@ -6,7 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "PlayerCharacter.h"
+#include "ThirdPersonCharacter.h"
 
 #include "PlayerCompanion.generated.h"
 
@@ -27,11 +27,16 @@ private:
 	float CurrentHoverTimer;
 
 	/* Reference to the Player Character Pawn */
-	APlayerCharacter* TargetPlayerCharacter;
+	AThirdPersonCharacter* TargetPlayerCharacter;
 
 	/* Gets the aim offset vector for our player based on the controller input or mouse position from the companion */
 	FVector GetAimOffset();
 
+
+	void FireWeaponPressed();
+
+
+	void FireWeaponReleased();
 	
 
 protected:

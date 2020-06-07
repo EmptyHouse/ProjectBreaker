@@ -37,6 +37,9 @@ void ABaseProjectile::Tick(float DeltaTime)
 
 	PreviousPosition = GetActorLocation();
 	DidWeCollideWithAnything();
+
+	DespawnAfterTime -= DeltaTime;
+	if (DespawnAfterTime < 0) GetWorld()->DestroyActor(this);
 }
 
 
@@ -47,7 +50,7 @@ bool ABaseProjectile::DidWeCollideWithAnything()
 	FHitResult OutHit;
 	TArray<AActor*> IgnoredActors;
 	if (UKismetSystemLibrary::SphereTraceSingleByProfile(GetWorld(), PreviousPosition, GetActorLocation(), SPHERE_RADIUS,
-	EnemyProfile, false, IgnoredActors, EDrawDebugTrace::ForDuration, OutHit, true, FColor(255, 0, 0), FColor(0, 255, 0), 3))
+	EnemyProfile, false, IgnoredActors, EDrawDebugTrace::None, OutHit, true, FColor(255, 0, 0), FColor(0, 255, 0), 3))
 	{
 	
 		return true;

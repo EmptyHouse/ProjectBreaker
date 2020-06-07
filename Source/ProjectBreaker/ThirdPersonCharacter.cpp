@@ -98,6 +98,14 @@ void AThirdPersonCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Spawn player companion and setup
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Name = FName(TEXT("PlayerCompanion"));
+	SpawnParameters.bNoFail = true;
+	AssignedPlayerCompanion = GetWorld()->SpawnActor<APlayerCompanion>(PlayerCompanionToSpawn.Get(), GetActorLocation() + GetActorRightVector() * 50, GetActorRotation(), SpawnParameters);
+	
+
+
 	// Blueprint construction script may override delegate attachments. So instead of attaching components and delegates in constructor, attach in Begin Play.
 	// Set OnHit event delegates
 	LeftMeleeCollisionBox->OnComponentHit.AddDynamic(this, &AThirdPersonCharacter::OnAttackHit);
@@ -139,7 +147,6 @@ void AThirdPersonCharacter::BeginPlay()
 		}
 
 	}
-
 	IsKeyboardEnabled = true;
 }
 
@@ -155,6 +162,11 @@ void AThirdPersonCharacter::Tick(float deltaTime)
 	{
 		CameraLockOnTimeline.TickTimeline(deltaTime);
 	}
+
+
+	//Companion
+	AssignedPlayerCompanion->UpdateCompanionPosition(deltaTime, this);
+	AssignedPlayerCompanion->UpdateCompanionRotation(Cast<APlayerController>(Controller));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -190,6 +202,10 @@ void AThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("PlayerAttack", IE_Pressed, this, &AThirdPersonCharacter::PunchAttack);
 	//PlayerInputComponent->BindAction("Kick", IE_Pressed, this, &AThirdPersonCharacter::KickAttack);
 
+	
+	//Companion Inputs
+	PlayerInputComponent->BindAction(TEXT("CompanionFire"), IE_Pressed, this, &AThirdPersonCharacter::CompanionFirePressed);
+	PlayerInputComponent->BindAction(TEXT("CompanionFire"), IE_Released, this, &AThirdPersonCharacter::CompanionFireReleased);
 }
 
 void AThirdPersonCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
@@ -549,4 +565,15 @@ void AThirdPersonCharacter::Log(ELogLevel LoggingLevel, FString Message, ELogOut
 			break;
 		}
 	}
+}
+
+
+void AThirdPersonCharacter::CompanionFirePressed()
+{
+	AssignedPlayerCompanion->FireWeaponPressed();
+}
+
+void AThirdPersonCharacter::CompanionFireReleased()
+{
+	AssignedPlayerCompanion->FireWeaponReleased();
 }

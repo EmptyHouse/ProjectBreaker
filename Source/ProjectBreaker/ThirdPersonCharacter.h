@@ -11,6 +11,7 @@
 #include "Components/TimelineComponent.h"
 #include "Engine/DataTable.h"
 #include "WeaponBase.h"
+#include "PlayerClasses/PlayerCompanion.h"
 #include "ThirdPersonCharacter.generated.h"
 
 #pragma region Structs_And_Enums
@@ -123,9 +124,16 @@ class PROJECTBREAKER_API AThirdPersonCharacter : public ACharacter
 	EAttackType CurrentAttackType;
 
 	FVector LockOnTarget;
+
+	/* The associated player companion */
+	APlayerCompanion* AssignedPlayerCompanion;
 		
 public:
 	AThirdPersonCharacter();
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Companion")
+	TSubclassOf<APlayerCompanion> PlayerCompanionToSpawn;
+	
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -202,6 +210,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void BeginLockOn(ABaseEnemy* enemyToTarget);
+
+	void CompanionFirePressed();
+
+	void CompanionFireReleased();
 
 protected:
 

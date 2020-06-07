@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "WeaponBase.generated.h"
 
 UCLASS()
@@ -30,6 +31,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UCapsuleComponent* CapsuleComponent;
+
+
 	/** Damage to apply if weapon collides with an enemy */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float BaseWeaponDamage;
@@ -40,9 +45,11 @@ protected:
 protected:
 
 	/** Logic when weapon hits an actor during attack. */
+	UFUNCTION()
 	void OnWeaponAttackHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** Logic when weapon overlap an actor during attack. */
+	UFUNCTION()
 	void OnWeaponAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	/** Returns true if actor overlapped/hit during an attack is valid */

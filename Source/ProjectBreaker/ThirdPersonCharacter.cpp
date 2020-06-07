@@ -393,7 +393,6 @@ void AThirdPersonCharacter::EndLockOn()
 
 void AThirdPersonCharacter::AttackInput(EAttackType AttackType)
 {
-	UE_LOG(LogTemp, Warning, TEXT("?"));
 	/*
 	FName dataTableRowName;
 	FString attackSocketLocation;

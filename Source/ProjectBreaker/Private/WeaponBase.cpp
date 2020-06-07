@@ -10,6 +10,11 @@ AWeaponBase::AWeaponBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
+	CapsuleComponent->InitCapsuleSize(10.f, 10.f);
+	SetRootComponent(CapsuleComponent);
+
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh"));
 	StaticMesh->SetupAttachment(RootComponent);
 }
@@ -19,12 +24,12 @@ void AWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StaticMesh->OnComponentHit.AddDynamic(this, &AWeaponBase::OnWeaponAttackHit);
-	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &AWeaponBase::OnWeaponAttackOverlap);
+	CapsuleComponent->OnComponentHit.AddDynamic(this, &AWeaponBase::OnWeaponAttackHit);
+	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AWeaponBase::OnWeaponAttackOverlap);
 
-	StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	CapsuleComponent->SetCollisionProfileName(TEXT("NoCollision"));
 	StaticMesh->SetNotifyRigidBodyCollision(false);
-	StaticMesh->SetGenerateOverlapEvents(false);
+	CapsuleComponent->SetGenerateOverlapEvents(false);
 }
 
 // Called every frame
@@ -50,10 +55,11 @@ void AWeaponBase::OnWeaponAttackStart_Implementation()
 {
 	if (StaticMesh)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Starting attack"));
+		//UE_LOG(LogTemp, Warning, TEXT("Starting attack"));
 		const FName CollisionProfileName = bBelongsToPlayer ? FName(TEXT("PlayerWeapon_Active")) : FName(TEXT("EnemyWeapon_Active"));
-		StaticMesh->SetCollisionProfileName(CollisionProfileName);
-		StaticMesh->SetNotifyRigidBodyCollision(true);
+		CapsuleComponent->SetCollisionProfileName(CollisionProfileName);
+		CapsuleComponent->SetGenerateOverlapEvents(true);
+		CapsuleComponent->SetNotifyRigidBodyCollision(true);
 	}
 }
 
@@ -62,9 +68,10 @@ void AWeaponBase::OnWeaponAttackEnd_Implementation()
 	const FName InactiveWeaponProfile = FName(TEXT("NoCollision"));
 	if (StaticMesh)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Ending attack"));
-		StaticMesh->SetCollisionProfileName(InactiveWeaponProfile);
-		StaticMesh->SetNotifyRigidBodyCollision(false);
+		//UE_LOG(LogTemp, Warning, TEXT("Ending attack"));
+		CapsuleComponent->SetCollisionProfileName(InactiveWeaponProfile);
+		CapsuleComponent->SetGenerateOverlapEvents(false);
+		CapsuleComponent->SetNotifyRigidBodyCollision(false);
 	}
 }
 
